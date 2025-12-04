@@ -7,3 +7,12 @@ pytrends
 requests
 aiohttp
 datetime
+scipy
+asyncio-throttle
+aiohttp
+tqdm
+seaborn
+python-dateutil
+jupyter
+notebook
+PyYAML
