@@ -14,7 +14,7 @@ st.title("🎣 Fishing Search Phenology Analysis with Temperature Data")
 # Load the dataset
 @st.cache_data
 def load_data():
-    df = pd.read_csv("weather_enriched_data.csv")
+    df = pd.read_csv("visualization/weather_enriched_data.csv")
     df['date'] = pd.to_datetime(df['date'])
     df['day_of_year'] = df['date'].dt.dayofyear
     return df
