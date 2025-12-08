@@ -10,7 +10,7 @@ import logging
 # ==========================================
 # 1. CONFIGURATION
 # ==========================================
-YEAR = 2023
+YEAR = 2021, 2022, 2023, 2024
 SEARCH_TERMS = [
     "Fishing", "Bass Fishing", "Trout Fishing", "Fly Fishing", "Ice Fishing"
 ]
