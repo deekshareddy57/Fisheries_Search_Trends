@@ -14,7 +14,7 @@ st.title("🎣 Fishing Search Phenology Analysis with Temperature Data")
 # Load the dataset
 @st.cache_data
 def load_data():
-    df = pd.read_csv("visualization/weather_enriched_data.csv")
+    df = pd.read_csv("trends-with_weather_2023.csv")
     df['date'] = pd.to_datetime(df['date'])
     df['day_of_year'] = df['date'].dt.dayofyear
     return df
@@ -119,8 +119,8 @@ else:
         st.metric("Duration", f"{int(duration)} days")
     
     # Check if weather data is available and has valid values
-    has_weather = ('temperature_2m_mean' in df_filtered.columns and 
-                   df_filtered['temperature_2m_mean'].notna().any())
+    has_weather = ('avg_temp_c' in df_filtered.columns and 
+                   df_filtered['avg_temp_c'].notna().any())
     
     # Debug: Show what columns we have
     st.write(f"**Available columns:** {', '.join(df_filtered.columns.tolist())}")
@@ -173,22 +173,33 @@ else:
     ax1.grid(True, alpha=0.3)
     
     # Add temperature overlay if weather data is available
-    if has_weather and show_temp:
-        try:
-            ax1_temp = ax1.twinx()
-            temp_mean = df_filtered['temperature_2m_mean'].values
-            ax1_temp.plot(doy, temp_mean, label='Temperature Mean', 
-                         linewidth=2, color='red', alpha=0.7, linestyle='-.')
-            ax1_temp.set_ylabel("Temperature (°C)", fontsize=12, color='red')
-            ax1_temp.tick_params(axis='y', labelcolor='red')
-            ax1_temp.legend(loc='upper right')
-            st.write("✅ Temperature overlay added")
-        except Exception as e:
-            st.error(f"Error adding temperature: {e}")
-    
-    
+    if has_weather:
+            # Create secondary axis sharing the same x-axis
+            ax2 = ax1.twinx()
+            
+            # 1. Plot Precipitation first (so it's behind the line)
+            if show_precip and 'total_precip_mm' in df_filtered.columns:
+                precip = df_filtered['total_precip_mm'].values
+                # Using bar chart for precip, low alpha so it doesn't block the lines
+                ax2.bar(doy, precip, color='blue', alpha=0.2, label='Precipitation (mm)', width=2)
+                
+            # 2. Plot Temperature
+            if show_temp and 'avg_temp_c' in df_filtered.columns:
+                temp_mean = df_filtered['avg_temp_c'].values
+                ax2.plot(doy, temp_mean, label='Avg Temp (°C)', 
+                        linewidth=2, color='red', alpha=0.6, linestyle='-.')
+            
+            # Configure secondary axis
+            ax2.set_ylabel("Weather Metrics", fontsize=12, color='gray')
+            ax2.tick_params(axis='y', labelcolor='gray')
+            
+            # Combine legends from both axes into one
+            lines_1, labels_1 = ax1.get_legend_handles_labels()
+            lines_2, labels_2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
+
     plt.tight_layout()
-    
+        
     # Display the plot
     st.pyplot(fig)
     
